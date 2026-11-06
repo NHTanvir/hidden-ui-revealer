@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Hidden UI Revealer",
+  "version": "1.0.0",
+  "description": "Finds interactive elements hidden or disabled for your role and can reveal them locally. For authorized security testing only.",
+  "permissions": ["storage", "sidePanel", "scripting", "tabs"],
+  "optional_host_permissions": ["*://*/*"],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "action": { "default_title": "Hidden UI Revealer (open side panel)" },
+  "options_page": "options.html",
+  "icons": { "128": "icon.png" }
+}
