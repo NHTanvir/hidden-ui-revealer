@@ -56,5 +56,30 @@ export function scanDocument() {
   return found;
 }
 
-// Messaging + MutationObserver wiring lands in step 3; panel/highlight in 4.
+// Debounced rescans on DOM changes + messaging to the panel.
+let timer = null;
+let latest = [];
+
+function publish() {
+  latest = scanDocument();
+  try { chrome.runtime.sendMessage({ type: 'huir-results', results: latest }); } catch {}
+}
+
+function schedule() {
+  clearTimeout(timer);
+  timer = setTimeout(publish, 300);
+}
+
+const observer = new MutationObserver(schedule);
+observer.observe(document.documentElement, {
+  childList: true, subtree: true, attributes: true,
+  attributeFilter: ['hidden', 'disabled', 'aria-hidden', 'aria-disabled', 'style', 'class'],
+});
+
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg && msg.type === 'huir-rescan') { publish(); sendResponse({ results: latest }); return true; }
+  if (msg && msg.type === 'huir-get') { sendResponse({ results: latest }); return true; }
+});
+
+publish();
 globalThis.__huirScan = scanDocument;
