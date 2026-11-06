@@ -1,6 +1,7 @@
 // ISOLATED world. Scans interactive elements and reports those hidden or
 // disabled for the current role. Observation only — never clicks anything.
 import * as detect from './detect.js';
+import { scoreElement } from './score.js';
 
 const SELECTOR = [
   'button', 'a[href]', 'input', 'select', 'textarea', 'form',
@@ -38,15 +39,20 @@ export function scanDocument() {
     const rs = detect.reasons(s);
     if (!rs.length) return;
     el.setAttribute('data-huir-id', String(idx));
-    found.push({
+    const rec = {
       id: idx++,
       tag: el.tagName.toLowerCase(),
       label: label(el),
       reason: rs,
       href: el.getAttribute('href') || null,
       action: el.getAttribute('action') || (el.form && el.form.action) || null,
-    });
+    };
+    const sc = scoreElement(rec);
+    rec.score = sc.score;
+    rec.destructive = sc.destructive;
+    found.push(rec);
   });
+  found.sort((a, b) => b.score - a.score);
   return found;
 }
 
