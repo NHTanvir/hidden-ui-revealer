@@ -1,0 +1,16 @@
+/* Temporary highlight applied by the "show me" action. */
+.huir-highlight {
+  outline: 3px solid #ff3b30 !important;
+  outline-offset: 2px !important;
+  background: rgba(255, 59, 48, 0.15) !important;
+}
+
+/* Local reveal: force hidden/disabled elements visible and interactive.
+   Only affects your own browser; the server still decides the action. */
+.huir-revealed {
+  display: revert !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  outline: 2px dashed #34c759 !important;
+}
