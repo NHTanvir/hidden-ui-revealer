@@ -1,3 +1,4 @@
+import { toMarkdown } from './markdown.js';
 let results = [];
 const listEl = document.getElementById('list');
 const emptyEl = document.getElementById('empty');
@@ -38,6 +39,12 @@ document.getElementById('rescan').addEventListener('click', async () => {
   const resp = await chrome.tabs.sendMessage(id, { type: 'huir-rescan' }).catch(() => null);
   results = (resp && resp.results) || [];
   render();
+});
+
+document.getElementById('copy').addEventListener('click', async () => {
+  let host = '';
+  try { const [t] = await chrome.tabs.query({ active: true, currentWindow: true }); host = new URL(t.url).host; } catch {}
+  navigator.clipboard.writeText(toMarkdown(results, { host, when: new Date().toISOString() })).catch(() => {});
 });
 
 chrome.runtime.onMessage.addListener((msg) => {

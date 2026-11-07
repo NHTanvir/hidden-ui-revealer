@@ -17,3 +17,11 @@ test('scoreElement uses label/href/action', () => {
   assert.ok(r.score >= 4);
   assert.equal(r.destructive, false);
 });
+
+import { toMarkdown } from '../markdown.js';
+test('markdown lists findings with reasons', () => {
+  const md = toMarkdown([{ label: 'Delete', tag: 'button', destructive: true, reason: ['disabled'], href: null, action: null }], { host: 'x.com' });
+  assert.ok(md.includes('Delete'));
+  assert.ok(md.includes('destructive'));
+  assert.ok(md.includes('disabled'));
+});
