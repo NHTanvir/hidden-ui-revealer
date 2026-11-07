@@ -39,13 +39,28 @@ export function scanDocument() {
     const rs = detect.reasons(s);
     if (!rs.length) return;
     el.setAttribute('data-huir-id', String(idx));
+    const form = el.tagName === 'FORM' ? el : el.form;
+    const dataAttrs = {};
+    for (const a of el.attributes) if (a.name.startsWith('data-')) dataAttrs[a.name] = a.value.slice(0, 120);
+    let method = null, hiddenFields = null;
+    if (form) {
+      method = (form.getAttribute('method') || 'GET').toUpperCase();
+      hiddenFields = {};
+      for (const inp of form.querySelectorAll('input[type=hidden][name], input[name][hidden]')) {
+        hiddenFields[inp.getAttribute('name')] = (inp.value || '').slice(0, 120);
+      }
+    }
     const rec = {
       id: idx++,
       tag: el.tagName.toLowerCase(),
       label: label(el),
       reason: rs,
       href: el.getAttribute('href') || null,
-      action: el.getAttribute('action') || (el.form && el.form.action) || null,
+      action: el.getAttribute('action') || (form && form.getAttribute('action')) || null,
+      method,
+      dataAttrs: Object.keys(dataAttrs).length ? dataAttrs : null,
+      hiddenFields: hiddenFields && Object.keys(hiddenFields).length ? hiddenFields : null,
+      mounted: true, // scanned from the live DOM, so handler/endpoint are recoverable now
     };
     const sc = scoreElement(rec);
     rec.score = sc.score;

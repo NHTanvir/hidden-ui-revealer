@@ -20,7 +20,9 @@ function render() {
       </div>
       <div class="reasons">${r.reason.map(esc).join(' · ')}</div>
       ${r.href ? `<div class="url">${esc(r.href)}</div>` : ''}
-      ${r.action ? `<div class="url">form → ${esc(r.action)}</div>` : ''}
+      ${r.action ? `<div class="url">${esc(r.method || 'GET')} ${esc(r.action)}</div>` : ''}
+      ${r.hiddenFields ? `<div class="meta2">hidden fields: ${esc(Object.entries(r.hiddenFields).map(([k,v])=>k+'='+v).join(', '))}</div>` : ''}
+      ${r.dataAttrs ? `<div class="meta2">${esc(Object.entries(r.dataAttrs).map(([k,v])=>k+'='+v).join(' · '))}</div>` : ''}
       <div><button class="reveal" data-id="${r.id}" data-danger="${r.destructive ? 1 : 0}">Reveal</button></div>
     </div>`).join('');
   emptyEl.style.display = results.length ? 'none' : 'block';
