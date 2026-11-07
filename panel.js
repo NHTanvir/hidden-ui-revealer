@@ -20,6 +20,7 @@ function render() {
       <div class="reasons">${r.reason.map(esc).join(' · ')}</div>
       ${r.href ? `<div class="url">${esc(r.href)}</div>` : ''}
       ${r.action ? `<div class="url">form → ${esc(r.action)}</div>` : ''}
+      <div><button class="reveal" data-id="${r.id}" data-danger="${r.destructive ? 1 : 0}">Reveal</button></div>
     </div>`).join('');
   emptyEl.style.display = results.length ? 'none' : 'block';
 }
@@ -44,11 +45,24 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 listEl.addEventListener('click', async (e) => {
-  const row = e.target.closest('.row');
-  if (!row) return;
-  const id = Number(row.dataset.id);
+  const btn = e.target.closest('button.reveal');
   const tid = await tabId();
-  chrome.tabs.sendMessage(tid, { type: 'huir-highlight', id }).catch(() => {});
+  if (btn) {
+    const id = Number(btn.dataset.id);
+    if (btn.dataset.danger === '1' &&
+        !confirm('This control looks destructive (delete/refund/revoke...). Reveal it anyway? It will NOT be clicked for you.')) return;
+    await chrome.tabs.sendMessage(tid, { type: 'huir-reveal', id, on: true }).catch(() => {});
+    btn.textContent = 'Revealed';
+    return;
+  }
+  const row = e.target.closest('.row');
+  if (row) chrome.tabs.sendMessage(tid, { type: 'huir-highlight', id: Number(row.dataset.id) }).catch(() => {});
+});
+
+document.getElementById('revealAll').addEventListener('click', async () => {
+  if (!confirm('Reveal all hidden/disabled elements on this page locally? Nothing is clicked for you.')) return;
+  const tid = await tabId();
+  await chrome.tabs.sendMessage(tid, { type: 'huir-reveal-all', on: true }).catch(() => {});
 });
 
 chrome.tabs.onActivated.addListener(refresh);
