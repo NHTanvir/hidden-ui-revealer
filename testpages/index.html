@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Hidden UI Revealer — test page</title></head>
+<body>
+<h1>Test page</h1>
+<p>Normal visible controls (must NOT be listed):</p>
+<button>Save</button> <a href="/home">Home</a>
+
+<p>Hidden / disabled controls (SHOULD be listed, interesting first):</p>
+<div style="display:none"><a href="/admin/users" id="adminmenu">Admin users</a></div>
+<button disabled>Export report</button>
+<a href="/billing/refund" aria-hidden="true">Issue refund</a>
+<button style="pointer-events:none">Impersonate user</button>
+<input type="text" value="secret" readonly aria-label="API key field">
+<button style="opacity:0">Delete account</button>
+
+<p>Added later by JS (tests the MutationObserver):</p>
+<div id="slot"></div>
+<script>
+  setTimeout(() => {
+    const b = document.createElement('button');
+    b.textContent = 'Grant role (added late)';
+    b.hidden = true;
+    document.getElementById('slot').appendChild(b);
+  }, 1000);
+</script>
+</body></html>
