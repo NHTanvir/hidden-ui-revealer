@@ -76,9 +76,20 @@ observer.observe(document.documentElement, {
   attributeFilter: ['hidden', 'disabled', 'aria-hidden', 'aria-disabled', 'style', 'class'],
 });
 
+function elById(id) { return document.querySelector(`[data-huir-id="${id}"]`); }
+
+function highlight(id) {
+  const el = elById(id);
+  if (!el) return;
+  el.classList.add('huir-highlight');
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  setTimeout(() => el.classList.remove('huir-highlight'), 2000);
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg && msg.type === 'huir-rescan') { publish(); sendResponse({ results: latest }); return true; }
   if (msg && msg.type === 'huir-get') { sendResponse({ results: latest }); return true; }
+  if (msg && msg.type === 'huir-highlight') { highlight(msg.id); sendResponse({ ok: true }); return true; }
 });
 
 publish();

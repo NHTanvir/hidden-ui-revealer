@@ -43,5 +43,13 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg && msg.type === 'huir-results') { results = msg.results; render(); }
 });
 
+listEl.addEventListener('click', async (e) => {
+  const row = e.target.closest('.row');
+  if (!row) return;
+  const id = Number(row.dataset.id);
+  const tid = await tabId();
+  chrome.tabs.sendMessage(tid, { type: 'huir-highlight', id }).catch(() => {});
+});
+
 chrome.tabs.onActivated.addListener(refresh);
 refresh();
