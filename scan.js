@@ -86,10 +86,33 @@ function highlight(id) {
   setTimeout(() => el.classList.remove('huir-highlight'), 2000);
 }
 
+function reveal(id, on) {
+  const el = elById(id);
+  if (!el) return false;
+  if (on) {
+    el.classList.add('huir-revealed');
+    el.removeAttribute('hidden');
+    el.removeAttribute('aria-hidden');
+    el.removeAttribute('disabled');
+    el.setAttribute('aria-disabled', 'false');
+  } else {
+    el.classList.remove('huir-revealed');
+  }
+  return true;
+}
+
+function revealAll(on) {
+  let n = 0;
+  for (const r of latest) if (reveal(r.id, on)) n++;
+  return n;
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg && msg.type === 'huir-rescan') { publish(); sendResponse({ results: latest }); return true; }
   if (msg && msg.type === 'huir-get') { sendResponse({ results: latest }); return true; }
   if (msg && msg.type === 'huir-highlight') { highlight(msg.id); sendResponse({ ok: true }); return true; }
+  if (msg && msg.type === 'huir-reveal') { sendResponse({ ok: reveal(msg.id, msg.on !== false) }); return true; }
+  if (msg && msg.type === 'huir-reveal-all') { sendResponse({ n: revealAll(msg.on !== false) }); return true; }
 });
 
 publish();
